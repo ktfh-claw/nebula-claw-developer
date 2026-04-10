@@ -1,0 +1,35 @@
+---
+all:
+  vars:
+    update_pkg_cache: true
+    unattend_disable: true
+    ensure_keys_for: [root]
+    become: true
+    ansible_user: root
+    one_version: '7.0'
+    one_pass: opennebula
+    ds:
+      mode: ssh
+    vn:
+      one_vnet:
+        managed: true
+        template:
+          VN_MAD: bridge
+          PHYDEV: enp41s0
+          BRIDGE: br0
+          AR:
+            TYPE: IP4
+            IP: 10.1.1.128
+            SIZE: 48
+            NETWORK_ADDRESS: 10.1.1.0
+            NETWORK_MASK: 255.255.255.0
+            GATEWAY: 10.1.1.1
+            DNS: 1.1.1.1
+
+frontend:
+  hosts:
+    balazs-MS-7A33: { ansible_host: 192.168.1.16 }
+
+node:
+  hosts:
+    balazs-MS-7A33: { ansible_host: 192.168.1.16 }
