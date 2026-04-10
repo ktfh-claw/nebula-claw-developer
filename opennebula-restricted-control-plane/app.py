@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import csv
+import io
 import json
 import os
 import shlex
@@ -54,10 +56,16 @@ def handle_generic_error(err: Exception):
     return jsonify({"error": str(err)}), 500
 
 
-def build_command(template: str, values: dict[str, Any]) -> str:
-    cmd = template
-    for key, value in values.items():
-        cmd = cmd.replace("{" + key + "}", shlex.quote(str(value)))
+def config_value(name: str, default: Any = None) -> Any:
+    return CONFIG.get(name, default)
+
+
+def build_shell_command(base_command: str, one_user: str, one_password: str | None = None) -> str:
+    cmd = f"sudo -u oneadmin env HOME=/var/lib/one {base_command}"
+    if one_user != "oneadmin":
+        if not one_password:
+            raise ApiError("password required when OpenNebula user is not oneadmin")
+        cmd = f"{cmd} --user {shlex.quote(one_user)} --password {shlex.quote(one_password)}"
     return cmd
 
 
@@ -71,11 +79,12 @@ def run_shell(command: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def command_for(name: str) -> str:
-    commands = CONFIG.get("commands", {})
-    if name not in commands:
-        raise ApiError(f"missing configured command for '{name}'", 500)
-    return commands[name]
+def resolve_one_credentials(payload: dict[str, Any] | None = None) -> tuple[str, str | None]:
+    payload = payload or {}
+    one_cfg = config_value("opennebula", {})
+    one_user = payload.get("one_user") or one_cfg.get("user") or "oneadmin"
+    one_password = payload.get("one_password") or one_cfg.get("password")
+    return one_user, one_password
 
 
 @app.get("/health")
@@ -85,22 +94,17 @@ def health():
 
 @app.get("/vms")
 def list_vms():
-    user = request.args.get("user")
-
-    template = command_for("list_vms")
-    command = build_command(template, {"user": user or ""})
+    one_user, one_password = resolve_one_credentials()
+    command = build_shell_command("/usr/bin/onevm list --csv", one_user, one_password)
     result = run_shell(command)
 
     output = result.stdout.strip()
     lines = [line for line in output.splitlines() if line.strip()]
-    parsed = lines
+    parsed: list[Any] = lines
 
     if lines:
         header = lines[0].lower()
         if "," in lines[0] and "id" in header and "name" in header:
-            import csv
-            import io
-
             reader = csv.DictReader(io.StringIO(output), skipinitialspace=True)
             parsed = []
             for row in reader:
@@ -117,7 +121,7 @@ def list_vms():
                     }
                 )
 
-    return jsonify({"user": user, "items": parsed, "command": command})
+    return jsonify({"items": parsed, "command": command, "opennebula_user": one_user})
 
 
 @app.post("/vms")
@@ -125,28 +129,23 @@ def create_vm():
     payload = request.get_json(silent=True) or {}
     template_id = payload.get("template_id")
     name = payload.get("name")
-    user = payload.get("user")
 
     if template_id is None:
         raise ApiError("missing json field: template_id")
     if not name:
         raise ApiError("missing json field: name")
-    if not user:
-        raise ApiError("missing json field: user")
 
-    template = command_for("create_vm")
-    command = build_command(
-        template,
-        {"template_id": template_id, "name": name, "user": user},
-    )
+    one_user, one_password = resolve_one_credentials(payload)
+    base_command = f"/usr/bin/onetemplate instantiate {shlex.quote(str(template_id))} --name {shlex.quote(str(name))} --hold"
+    command = build_shell_command(base_command, one_user, one_password)
     result = run_shell(command)
 
     return jsonify(
         {
             "status": "created",
-            "user": user,
             "name": name,
             "template_id": template_id,
+            "opennebula_user": one_user,
             "stdout": result.stdout.strip(),
             "command": command,
         }
@@ -156,19 +155,16 @@ def create_vm():
 @app.delete("/vms/<vm_id>")
 def delete_vm(vm_id: str):
     payload = request.get_json(silent=True) or {}
-    user = payload.get("user") or request.args.get("user")
-    if not user:
-        raise ApiError("missing user in query string or json body")
-
-    template = command_for("delete_vm")
-    command = build_command(template, {"vm_id": vm_id, "user": user})
+    one_user, one_password = resolve_one_credentials(payload)
+    base_command = f"/usr/bin/onevm terminate {shlex.quote(str(vm_id))} --hard"
+    command = build_shell_command(base_command, one_user, one_password)
     result = run_shell(command)
 
     return jsonify(
         {
             "status": "deleted",
             "vm_id": vm_id,
-            "user": user,
+            "opennebula_user": one_user,
             "stdout": result.stdout.strip(),
             "command": command,
         }

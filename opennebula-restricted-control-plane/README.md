@@ -5,9 +5,28 @@ Basic Python REST API scaffold for a restricted OpenNebula control plane.
 ## Endpoints
 
 - `GET /health` — simple health check
-- `GET /vms` — list current VMs visible through the configured OpenNebula command
-- `POST /vms` — create a VM from a template for a specific user
-- `DELETE /vms/<vm_id>?user=<name>` — delete a VM by ID
+- `GET /vms` — list current VMs visible to the configured OpenNebula user
+- `POST /vms` — create a VM from a template
+- `DELETE /vms/<vm_id>` — terminate a VM by ID
+
+## OpenNebula credentials
+
+Credentials are configurable in `config.json`:
+
+```json
+{
+  "opennebula": {
+    "user": "oneadmin",
+    "password": null
+  }
+}
+```
+
+Behavior:
+
+- if the configured OpenNebula user is `oneadmin`, the API does **not** add `--user`
+- if the configured OpenNebula user is anything else, the API adds both `--user <name>` and `--password <password>`
+- per-request overrides are also supported with `one_user` and `one_password` fields in JSON bodies
 
 ## Request examples
 
@@ -17,42 +36,37 @@ Basic Python REST API scaffold for a restricted OpenNebula control plane.
 curl "http://127.0.0.1:8080/vms"
 ```
 
-### Create VM
+### Create VM as oneadmin
 
 ```bash
 curl -X POST "http://127.0.0.1:8080/vms" \
   -H "Content-Type: application/json" \
   -d '{
-    "user": "oneadmin",
     "template_id": 0,
     "name": "test-vm"
+  }'
+```
+
+### Create VM as another OpenNebula user
+
+```bash
+curl -X POST "http://127.0.0.1:8080/vms" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "template_id": 0,
+    "name": "test-vm",
+    "one_user": "alice",
+    "one_password": "secret"
   }'
 ```
 
 ### Delete VM
 
 ```bash
-curl -X DELETE "http://127.0.0.1:8080/vms/123?user=oneadmin"
+curl -X DELETE "http://127.0.0.1:8080/vms/123"
 ```
 
-## Configuration
-
-Commands are configured in `config.json`.
-
-Each endpoint maps to a shell command template. Placeholders are replaced safely before execution.
-
-Current placeholders:
-
-- `{template_id}`
-- `{name}`
-- `{user}`
-- `{vm_id}`
-
-The default configuration uses OpenNebula CLI commands executed through the local `oneadmin` account:
-
-- list VMs with `onevm list`
-- create VMs with `onetemplate instantiate`
-- delete VMs with `onevm delete`
+This currently maps to a hard terminate action in OpenNebula.
 
 ## Running locally
 
@@ -73,7 +87,7 @@ Environment variables:
 
 This is intentionally a first scaffold:
 
-- it uses shell commands instead of a stronger internal adapter layer
+- it uses OpenNebula CLI commands through a local restricted execution path
 - it is not authenticated yet
-- it relies on local sudo rules / host policy for privilege boundaries
+- passwords in request bodies are acceptable for local testing only, not final production design
 - create and delete behavior should be narrowed further before production use
