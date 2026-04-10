@@ -1,0 +1,7 @@
+{
+  "commands": {
+    "list_vms": "sudo su - oneadmin -c '/usr/bin/onevm list --csv -u {user}'",
+    "create_vm": "sudo su - oneadmin -c '/usr/bin/onetemplate instantiate {template_id} --name {name} --hold --user {user}'",
+    "delete_vm": "sudo su - oneadmin -c '/usr/bin/onevm delete {vm_id} --recreate'"
+  }
+}

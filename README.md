@@ -17,7 +17,7 @@ This repository is intended to capture:
 
 - `installation/` — setup notes, inventory examples, and OpenNebula/OpenClaw installation guidance
 - `operation/` — operational docs and future skills/automation
-- `opennebula-restricted-control-plane/` — placeholder for a future REST API
+- `opennebula-restricted-control-plane/` — basic Python REST API scaffold for restricted VM operations
 
 ## Intended architecture
 
@@ -28,4 +28,4 @@ This repository is intended to capture:
 
 ## Status
 
-Early scaffold / placeholder repository.
+Early scaffold repository with an initial restricted control plane prototype.
