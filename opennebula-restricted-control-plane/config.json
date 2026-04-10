@@ -1,6 +1,6 @@
 {
   "opennebula": {
-    "user": "oneadmin",
-    "password": null
+    "user": "restrictedapi",
+    "password": "StrongTempPass123!"
   }
 }

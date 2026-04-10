@@ -16,8 +16,8 @@ Credentials are configurable in `config.json`:
 ```json
 {
   "opennebula": {
-    "user": "oneadmin",
-    "password": null
+    "user": "restrictedapi",
+    "password": "change-me"
   }
 }
 ```
@@ -27,6 +27,7 @@ Behavior:
 - if the configured OpenNebula user is `oneadmin`, the API does **not** add `--user`
 - if the configured OpenNebula user is anything else, the API adds both `--user <name>` and `--password <password>`
 - per-request overrides are also supported with `one_user` and `one_password` fields in JSON bodies
+- for a restricted deployment, create a dedicated non-admin OpenNebula user and grant that user access only to curated templates, images, and networks
 
 ## Request examples
 
