@@ -29,36 +29,6 @@ Treat these VMs as throwaway development and testing environments, not long-live
 6. Perform the development or testing task inside the VM.
 7. Terminate the VM when the task is complete unless the user asks to keep it.
 
-## API shape
-
-Base endpoints:
-
-- `GET /health`
-- `GET /vms`
-- `POST /vms`
-- `DELETE /vms/<vm_id_or_name>`
-
-Prefer readable names over numeric IDs whenever possible.
-
-### Create request
-
-Send JSON like:
-
-```json
-{
-  "template_name": "alpine320-test",
-  "name": "build-test-2026-04-10"
-}
-```
-
-### Delete request
-
-Prefer deleting by VM name:
-
-```text
-DELETE /vms/build-test-2026-04-10
-```
-
 ## Naming guidance
 
 Use clear, task-based VM names so later cleanup is obvious.
@@ -97,45 +67,10 @@ When using this skill:
 - capture the VM name in notes or task output so it can be cleaned up later
 - summarize what was tested in the isolated VM and whether the VM was destroyed afterward
 
-## Current example environment
+## Bundled resources
 
-Current curated example resources in this project:
+Read `references/api.md` for endpoint details, payloads, and current example values.
 
-- template name: `alpine320-test`
-- API-backed restricted user: `restrictedapi`
+Read `references/setup.md` when you need the concrete OpenNebula-side restricted-user setup and curated resource sharing workflow.
 
-Read `installation/restricted-user-setup.md` when you need the concrete OpenNebula-side setup steps.
-
-## Minimal usage examples
-
-Health check:
-
-```bash
-curl http://127.0.0.1:8080/health
-```
-
-List VMs:
-
-```bash
-curl http://127.0.0.1:8080/vms
-```
-
-Create a VM:
-
-```bash
-curl -X POST http://127.0.0.1:8080/vms \
-  -H "Content-Type: application/json" \
-  -d '{"template_name":"alpine320-test","name":"test-nebula-api-2026-04-10"}'
-```
-
-Delete a VM:
-
-```bash
-curl -X DELETE http://127.0.0.1:8080/vms/test-nebula-api-2026-04-10
-```
-
-## When to read more
-
-Read `../opennebula-restricted-control-plane/README.md` when you need endpoint details or credential behavior.
-
-Read `../installation/restricted-user-setup.md` when you need to recreate the restricted OpenNebula user, curated template, or permission model.
+Use `scripts/vm_api.sh` for quick health, list, create, and delete requests against the restricted control plane API.
