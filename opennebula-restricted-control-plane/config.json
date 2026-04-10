@@ -1,7 +1,7 @@
 {
   "commands": {
-    "list_vms": "sudo su - oneadmin -c '/usr/bin/onevm list --csv -u {user}'",
-    "create_vm": "sudo su - oneadmin -c '/usr/bin/onetemplate instantiate {template_id} --name {name} --hold --user {user}'",
-    "delete_vm": "sudo su - oneadmin -c '/usr/bin/onevm delete {vm_id} --recreate'"
+    "list_vms": "sudo -u oneadmin env HOME=/var/lib/one /usr/bin/onevm list --csv",
+    "create_vm": "sudo -u oneadmin env HOME=/var/lib/one /usr/bin/onetemplate instantiate {template_id} --name {name} --hold --user {user}",
+    "delete_vm": "sudo -u oneadmin env HOME=/var/lib/one /usr/bin/onevm delete {vm_id} --recreate"
   }
 }

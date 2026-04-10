@@ -5,7 +5,7 @@ Basic Python REST API scaffold for a restricted OpenNebula control plane.
 ## Endpoints
 
 - `GET /health` — simple health check
-- `GET /vms?user=<name>` — list VMs for a specific OpenNebula user
+- `GET /vms` — list current VMs visible through the configured OpenNebula command
 - `POST /vms` — create a VM from a template for a specific user
 - `DELETE /vms/<vm_id>?user=<name>` — delete a VM by ID
 
@@ -14,7 +14,7 @@ Basic Python REST API scaffold for a restricted OpenNebula control plane.
 ### List VMs
 
 ```bash
-curl "http://127.0.0.1:8080/vms?user=oneadmin"
+curl "http://127.0.0.1:8080/vms"
 ```
 
 ### Create VM
@@ -43,9 +43,9 @@ Each endpoint maps to a shell command template. Placeholders are replaced safely
 
 Current placeholders:
 
-- `{user}`
 - `{template_id}`
 - `{name}`
+- `{user}`
 - `{vm_id}`
 
 The default configuration uses OpenNebula CLI commands executed through the local `oneadmin` account:

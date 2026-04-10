@@ -86,11 +86,9 @@ def health():
 @app.get("/vms")
 def list_vms():
     user = request.args.get("user")
-    if not user:
-        raise ApiError("missing query parameter: user")
 
     template = command_for("list_vms")
-    command = build_command(template, {"user": user})
+    command = build_command(template, {"user": user or ""})
     result = run_shell(command)
 
     output = result.stdout.strip()
