@@ -30,10 +30,19 @@ This folder holds setup notes for a reference OpenNebula + OpenClaw environment.
 
 - [ ] Write concrete `one-deploy` steps for this environment
 - [ ] Document NAT configuration requirements and examples
-- [ ] Document post-install OpenNebula user / group / ACL configuration
-- [ ] Define the curated VM templates OpenClaw is allowed to manage
+- [x] Document post-install OpenNebula user / group / ACL configuration
+- [x] Define the curated VM templates OpenClaw is allowed to manage
 - [ ] Add a hardening checklist for the OpenClaw VM
 - [ ] Add backup / snapshot recommendations
+
+## Restricted control plane setup
+
+See `restricted-user-setup.md` for a concrete example of:
+
+- creating a non-admin OpenNebula user for the API
+- importing a curated Alpine image from the marketplace
+- sharing the curated template, image, and network with a non-admin group
+- configuring the API to use readable names instead of mostly numeric IDs
 
 ## Creating the OpenClaw VM
 

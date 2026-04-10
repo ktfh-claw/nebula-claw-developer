@@ -127,16 +127,16 @@ def list_vms():
 @app.post("/vms")
 def create_vm():
     payload = request.get_json(silent=True) or {}
-    template_id = payload.get("template_id")
+    template_name = payload.get("template_name") or payload.get("template_id")
     name = payload.get("name")
 
-    if template_id is None:
-        raise ApiError("missing json field: template_id")
+    if template_name is None:
+        raise ApiError("missing json field: template_name")
     if not name:
         raise ApiError("missing json field: name")
 
     one_user, one_password = resolve_one_credentials(payload)
-    base_command = f"/usr/bin/onetemplate instantiate {shlex.quote(str(template_id))} --name {shlex.quote(str(name))} --hold"
+    base_command = f"/usr/bin/onetemplate instantiate {shlex.quote(str(template_name))} --name {shlex.quote(str(name))} --hold"
     command = build_shell_command(base_command, one_user, one_password)
     result = run_shell(command)
 
@@ -144,7 +144,7 @@ def create_vm():
         {
             "status": "created",
             "name": name,
-            "template_id": template_id,
+            "template_name": template_name,
             "opennebula_user": one_user,
             "stdout": result.stdout.strip(),
             "command": command,
@@ -156,7 +156,8 @@ def create_vm():
 def delete_vm(vm_id: str):
     payload = request.get_json(silent=True) or {}
     one_user, one_password = resolve_one_credentials(payload)
-    base_command = f"/usr/bin/onevm terminate {shlex.quote(str(vm_id))} --hard"
+    vm_ref = payload.get("vm_name") or vm_id
+    base_command = f"/usr/bin/onevm terminate {shlex.quote(str(vm_ref))} --hard"
     command = build_shell_command(base_command, one_user, one_password)
     result = run_shell(command)
 
@@ -164,6 +165,7 @@ def delete_vm(vm_id: str):
         {
             "status": "deleted",
             "vm_id": vm_id,
+            "vm_ref": vm_ref,
             "opennebula_user": one_user,
             "stdout": result.stdout.strip(),
             "command": command,

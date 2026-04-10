@@ -7,7 +7,7 @@ Basic Python REST API scaffold for a restricted OpenNebula control plane.
 - `GET /health` — simple health check
 - `GET /vms` — list current VMs visible to the configured OpenNebula user
 - `POST /vms` — create a VM from a template
-- `DELETE /vms/<vm_id>` — terminate a VM by ID
+- `DELETE /vms/<vm_id>` — terminate a VM by ID or name
 
 ## OpenNebula credentials
 
@@ -37,13 +37,13 @@ Behavior:
 curl "http://127.0.0.1:8080/vms"
 ```
 
-### Create VM as oneadmin
+### Create VM from a readable template name
 
 ```bash
 curl -X POST "http://127.0.0.1:8080/vms" \
   -H "Content-Type: application/json" \
   -d '{
-    "template_id": 0,
+    "template_name": "alpine320-test",
     "name": "test-vm"
   }'
 ```
@@ -54,17 +54,23 @@ curl -X POST "http://127.0.0.1:8080/vms" \
 curl -X POST "http://127.0.0.1:8080/vms" \
   -H "Content-Type: application/json" \
   -d '{
-    "template_id": 0,
+    "template_name": "alpine320-test",
     "name": "test-vm",
     "one_user": "alice",
     "one_password": "secret"
   }'
 ```
 
-### Delete VM
+### Delete VM by numeric ID
 
 ```bash
 curl -X DELETE "http://127.0.0.1:8080/vms/123"
+```
+
+### Delete VM by name
+
+```bash
+curl -X DELETE "http://127.0.0.1:8080/vms/restricted-api-via-rest"
 ```
 
 This currently maps to a hard terminate action in OpenNebula.
