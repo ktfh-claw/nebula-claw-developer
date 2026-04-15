@@ -1,16 +1,16 @@
 # nebula-claw-developer
 
-Example repository for building an OpenClaw skill that operates disposable OpenNebula virtual machines through a restricted control plane API.
+Reference repository for the Nebula Claw Developer skill and its supporting example architecture.
 
 ## Repository layout
 
-- `operation/` — the publishable OpenClaw skill intended for ClawHub
+- `nebula-claw-developer/` — the publishable OpenClaw skill intended for ClawHub
 - `opennebula-restricted-control-plane/` — reference restricted API implementation used by the skill
 - `installation/` — environment setup notes and installation guidance for the reference lab
 
 ## What is publishable
 
-The `operation/` folder is the skill package boundary.
+The `nebula-claw-developer/` folder is the skill package boundary.
 
 It contains:
 
@@ -42,9 +42,9 @@ From the repository root, publish the skill folder with the ClawHub CLI:
 ```bash
 clawhub login
 clawhub whoami
-clawhub skill publish ./operation \
-  --slug opennebula-operation \
-  --name "OpenNebula Operation" \
+clawhub skill publish ./nebula-claw-developer \
+  --slug nebula-claw-developer \
+  --name "Nebula Claw Developer" \
   --version 1.0.0 \
   --changelog "Initial public release" \
   --tags latest
@@ -52,12 +52,12 @@ clawhub skill publish ./operation \
 
 ## Local test workflow
 
-To test locally in an OpenClaw workspace, copy or symlink `operation/` into a workspace `skills/` directory, then start a new session or restart the gateway.
+To test locally in an OpenClaw workspace, copy or symlink `nebula-claw-developer/` into a workspace `skills/` directory, then start a new session or restart the gateway.
 
 Example:
 
 ```bash
 mkdir -p ~/.openclaw/workspace/skills
-cp -a ./operation ~/.openclaw/workspace/skills/opennebula-operation
+cp -a ./nebula-claw-developer ~/.openclaw/workspace/skills/nebula-claw-developer
 openclaw gateway restart
 ```

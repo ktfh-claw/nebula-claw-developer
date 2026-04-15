@@ -171,12 +171,12 @@ curl -X DELETE http://127.0.0.1:8080/vms/restricted-api-test
 
 ## 7. Connect the published skill to the API
 
-The publishable skill lives in the repository `operation/` folder.
+The publishable skill lives in the repository `nebula-claw-developer/` folder.
 
 When installing that skill into OpenClaw, point it at the restricted API with `API_BASE`, for example:
 
 ```bash
-API_BASE=http://10.1.1.130:8080 ./operation/scripts/vm_api.sh health
+API_BASE=http://10.1.1.130:8080 ./nebula-claw-developer/scripts/vm_api.sh health
 ```
 
 For a ClawHub release, keep deployment-specific endpoints outside the published skill and provide them at install or runtime.

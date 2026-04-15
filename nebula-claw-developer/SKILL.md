@@ -1,9 +1,9 @@
 ---
-name: opennebula-operation
+name: nebula-claw-developer
 description: Provision, inspect, and terminate disposable OpenNebula virtual machines through a restricted control plane API. Use when an OpenClaw agent needs a short-lived VM for development, debugging, integration testing, package installation, or risky experiments that should run in isolation instead of on the main host.
 ---
 
-# OpenNebula Operation
+# Nebula Claw Developer
 
 Use the restricted OpenNebula control plane API to create, list, and terminate disposable virtual machines for isolated work.
 
