@@ -31,9 +31,40 @@ These folders are useful for operators who want to stand up the same architectur
 
 ## Intended architecture
 
-- OpenNebula provides the virtualization layer.
-- A restricted API exposes a narrow VM lifecycle surface for curated templates.
-- OpenClaw runs separately and uses the published skill to call that API.
+- OpenNebula runs on a single bare metal host that serves as both frontend and hypervisor.
+- A NATed private virtual network hosts the OpenClaw VM and the disposable workload VMs.
+- The restricted API runs on the bare metal OpenNebula host.
+- The restricted API performs VM actions through a separate non-admin OpenNebula user with access only to curated resources.
+- The OpenClaw VM uses the published skill to call the restricted API, then connects to the created VMs for development, testing, and deployment work.
+
+### Reference architecture diagram
+
+```mermaid
+flowchart TD
+    subgraph BM[Single bare metal OpenNebula host]
+        FE[OpenNebula frontend]
+        HV[OpenNebula hypervisor]
+        API[Restricted control plane API]
+        RU[Restricted OpenNebula user]
+        FE --- HV
+        API --> RU
+        RU --> FE
+    end
+
+    subgraph NAT[NAT private VM network]
+        OC[OpenClaw VM\nNebula Claw Developer skill]
+        DEV[Disposable dev VM]
+        TEST[Disposable test VM]
+        DEPLOY[Disposable deployment VM]
+    end
+
+    OC -- HTTP API calls --> API
+    API -- create, list, delete --> RU
+    OC -- SSH or normal access path --> DEV
+    OC -- SSH or normal access path --> TEST
+    OC -- SSH or normal access path --> DEPLOY
+    FE --- NAT
+```
 
 ## Publish workflow
 
