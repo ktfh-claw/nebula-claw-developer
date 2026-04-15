@@ -1,37 +1,33 @@
 ---
-name: operation
-description: Operate the restricted OpenNebula control plane for disposable development and testing VMs. Use when an OpenClaw agent needs to create, list, or terminate isolated VM environments on demand for software development, dependency installation, reproducible debugging, integration testing, or risky experiments that should not run on the main host.
+name: opennebula-operation
+description: Provision, inspect, and terminate disposable OpenNebula virtual machines through a restricted control plane API. Use when an OpenClaw agent needs a short-lived VM for development, debugging, integration testing, package installation, or risky experiments that should run in isolation instead of on the main host.
 ---
 
-# Operation
+# OpenNebula Operation
 
-Use the restricted OpenNebula control plane API to provision short-lived VMs for isolated work.
+Use the restricted OpenNebula control plane API to create, list, and terminate disposable virtual machines for isolated work.
 
-## Goal
+## Workflow
 
-Create fully isolated virtual machines on demand so an agent can:
+1. Read `references/api.md` for the API contract and request examples.
+2. Check API health before taking action.
+3. List visible VMs and reuse an existing one only if it clearly matches the task.
+4. Prefer curated template names over numeric identifiers.
+5. Create a fresh VM when isolation matters more than reuse.
+6. Record the VM name in output so later cleanup is obvious.
+7. Terminate the VM when the task is complete unless the user explicitly asks to keep it.
 
-- test code changes safely
-- install packages or services without polluting the main environment
-- reproduce failures in a clean machine
-- run risky or destructive experiments in a disposable sandbox
-- validate behavior across a fresh system image
+## Safety constraints
 
-Treat these VMs as throwaway development and testing environments, not long-lived pets.
-
-## Default workflow
-
-1. Check the API health endpoint.
-2. List currently visible VMs.
-3. Reuse an existing suitable VM only if it clearly matches the task.
-4. Otherwise create a fresh VM from an approved curated template.
-5. Wait until the VM is reachable through the environment's normal access path.
-6. Perform the development or testing task inside the VM.
-7. Terminate the VM when the task is complete unless the user asks to keep it.
+- Use only curated templates, images, and networks intentionally shared with the restricted OpenNebula user.
+- Do not switch to broad administrative OpenNebula privileges for routine work.
+- Do not assume arbitrary templates are safe to instantiate.
+- Treat created VMs as disposable unless the user asks for persistence.
+- If the API health check fails, stop and diagnose before attempting create or delete operations.
 
 ## Naming guidance
 
-Use clear, task-based VM names so later cleanup is obvious.
+Use short task-based names that make later cleanup obvious.
 
 Recommended pattern:
 
@@ -43,34 +39,18 @@ Examples:
 - `build-myapp-2026-04-10`
 - `repro-login-bug-2026-04-10`
 
-Keep names short, descriptive, and unique enough to avoid collisions.
-
-## Safety rules
-
-Only use curated templates and networks that were intentionally shared with the restricted OpenNebula user.
-
-Do not:
-
-- use broad administrative OpenNebula privileges for routine VM work
-- create long-lived infrastructure through this path
-- assume arbitrary templates are safe to instantiate
-- leave disposable VMs running after testing unless there is a clear reason
-
-If the task needs persistence, say so explicitly and document why the VM should be kept.
-
-## Suggested agent behavior
-
-When using this skill:
-
-- prefer a fresh VM for risky package installs, system-level changes, or integration tests
-- prefer reusing a running VM only when setup cost matters and the environment is known to be compatible
-- capture the VM name in notes or task output so it can be cleaned up later
-- summarize what was tested in the isolated VM and whether the VM was destroyed afterward
-
 ## Bundled resources
 
-Read `references/api.md` for endpoint details, payloads, and current example values.
+- Read `references/api.md` for endpoints, payloads, and example responses.
+- Read `references/setup.md` when you need the OpenNebula-side restricted-user and curated-resource setup pattern.
+- Use `scripts/vm_api.sh` for deterministic health, list, create, and delete calls against the restricted API.
 
-Read `references/setup.md` when you need the concrete OpenNebula-side restricted-user setup and curated resource sharing workflow.
+## Output expectations
 
-Use `scripts/vm_api.sh` for quick health, list, create, and delete requests against the restricted control plane API.
+When using this skill, report:
+
+- the API endpoint used
+- the VM name
+- the template name
+- the result of create, list, or delete operations
+- whether the VM was left running or destroyed

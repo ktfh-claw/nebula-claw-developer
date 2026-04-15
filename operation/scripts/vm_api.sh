@@ -10,6 +10,9 @@ Usage:
   vm_api.sh list
   vm_api.sh create <template_name> <vm_name>
   vm_api.sh delete <vm_name_or_id>
+
+Environment:
+  API_BASE   Base URL of the restricted OpenNebula control plane API
 EOF
 }
 

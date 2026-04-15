@@ -98,6 +98,7 @@ sudo -u oneadmin env HOME=/var/lib/one \
 ## Follow-up hardening
 
 - Move the password out of JSON config.
-- Allowlist template names.
 - Add API authentication.
+- Allowlist template names.
 - Add TTL-based cleanup for disposable VMs.
+- Restrict bind address and network exposure according to the deployment.

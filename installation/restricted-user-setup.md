@@ -160,7 +160,26 @@ Create a VM:
 ```bash
 curl -X POST http://127.0.0.1:8080/vms \
   -H "Content-Type: application/json" \
-  -d '{"template_id":"alpine320-test","name":"restricted-api-via-rest"}'
+  -d '{"template_name":"alpine320-test","name":"restricted-api-test"}'
+```
+
+Delete the VM:
+
+```bash
+curl -X DELETE http://127.0.0.1:8080/vms/restricted-api-test
+```
+
+## 7. Connect the published skill to the API
+
+The publishable skill lives in the repository `operation/` folder.
+
+When installing that skill into OpenClaw, point it at the restricted API with `API_BASE`, for example:
+
+```bash
+API_BASE=http://10.1.1.130:8080 ./operation/scripts/vm_api.sh health
+```
+
+For a ClawHub release, keep deployment-specific endpoints outside the published skill and provide them at install or runtime.
 ```
 
 Delete a VM:
