@@ -46,16 +46,22 @@ flowchart TD
         HV[OpenNebula hypervisor]
         API[Restricted control plane API]
         RU[Restricted OpenNebula user]
+
+        subgraph VI[Virtual infrastructure on the hypervisor]
+            OC[OpenClaw VM\nNebula Claw Developer skill]
+            DEV[Disposable dev VM]
+            TEST[Disposable test VM]
+            DEPLOY[Disposable deployment VM]
+            NET[Private VM network]
+        end
+
         FE --- HV
         API --> RU
         RU --> FE
-    end
-
-    subgraph NAT[NAT private VM network]
-        OC[OpenClaw VM\nNebula Claw Developer skill]
-        DEV[Disposable dev VM]
-        TEST[Disposable test VM]
-        DEPLOY[Disposable deployment VM]
+        NET --- OC
+        NET --- DEV
+        NET --- TEST
+        NET --- DEPLOY
     end
 
     OC -- HTTP API calls --> API
@@ -63,7 +69,14 @@ flowchart TD
     OC -- SSH or normal access path --> DEV
     OC -- SSH or normal access path --> TEST
     OC -- SSH or normal access path --> DEPLOY
-    FE --- NAT
+
+    classDef infra fill:#dbeafe,stroke:#1d4ed8,color:#1e3a8a,stroke-width:1.5px;
+    classDef vm fill:#dcfce7,stroke:#16a34a,color:#14532d,stroke-width:1.5px;
+    classDef network fill:#f3f4f6,stroke:#6b7280,color:#374151,stroke-width:1.5px;
+
+    class FE,HV,API,RU infra;
+    class OC,DEV,TEST,DEPLOY vm;
+    class NET network;
 ```
 
 ## Publish workflow
