@@ -14,53 +14,47 @@ The goal is:
 This example uses the following names:
 
 - OpenNebula user: `restrictedapi`
-- Curated image: `alpine320-test`
-- Curated VM template: `alpine320-test`
+- Curated image: `ubuntu-24-curated`
+- Curated VM template: `ubuntu-24-curated`
 - Curated virtual network: `vm`
 
 ## 1. Create a dedicated non-admin OpenNebula user
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  oneuser create restrictedapi StrongTempPass123!
+sudo -u oneadmin oneuser create restrictedapi StrongTempPass123!
 ```
 
 Verify:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  oneuser list
+sudo -u oneadmin oneuser list
 ```
 
 ## 2. Import a small curated image from the public marketplace
 
-List marketplace apps and pick a readable Alpine image name:
+List marketplace apps and pick a readable Ubuntu image name:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  onemarketapp list
+sudo -u oneadmin onemarketapp list
 ```
 
 Example import:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  onemarketapp export "Alpine Linux 3.20" alpine320-test --datastore default
+sudo -u oneadmin onemarketapp export "Ubuntu 24.04" ubuntu-24-curated --datastore default
 ```
 
 This creates:
 
-- an image named `alpine320-test`
-- a VM template named `alpine320-test`
+- an image named `ubuntu-24-curated`
+- a VM template named `ubuntu-24-curated`
 
 Verify:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  oneimage list
+sudo -u oneadmin oneimage list
 
-sudo -u oneadmin env HOME=/var/lib/one \
-  onetemplate list
+sudo -u oneadmin onetemplate list
 ```
 
 ## 3. Put curated resources in a shared non-admin group
@@ -70,31 +64,25 @@ The example user is created in the `users` group. Move the curated resources int
 Template:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  onetemplate chgrp alpine320-test users
+sudo -u oneadmin onetemplate chgrp ubuntu-24-curated users
 
-sudo -u oneadmin env HOME=/var/lib/one \
-  onetemplate chmod alpine320-test 640
+sudo -u oneadmin onetemplate chmod ubuntu-24-curated 640
 ```
 
 Image:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  oneimage chgrp alpine320-test users
+sudo -u oneadmin oneimage chgrp ubuntu-24-curated users
 
-sudo -u oneadmin env HOME=/var/lib/one \
-  oneimage chmod alpine320-test 640
+sudo -u oneadmin oneimage chmod ubuntu-24-curated 640
 ```
 
 Network:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  onevnet chgrp vm users
+sudo -u oneadmin onevnet chgrp vm users
 
-sudo -u oneadmin env HOME=/var/lib/one \
-  onevnet chmod vm 640
+sudo -u oneadmin onevnet chmod vm 640
 ```
 
 ## 4. Test direct OpenNebula access as the restricted user
@@ -102,8 +90,7 @@ sudo -u oneadmin env HOME=/var/lib/one \
 List VMs:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  onevm list --csv \
+sudo -u oneadmin onevm list --csv \
   --user restrictedapi \
   --password StrongTempPass123!
 ```
@@ -111,10 +98,8 @@ sudo -u oneadmin env HOME=/var/lib/one \
 Create a VM from the curated template:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  onetemplate instantiate alpine320-test \
+sudo -u oneadmin onetemplate instantiate ubuntu-24-curated \
   --name restricted-api-test \
-  --hold \
   --user restrictedapi \
   --password StrongTempPass123!
 ```
@@ -122,14 +107,53 @@ sudo -u oneadmin env HOME=/var/lib/one \
 Delete the VM:
 
 ```bash
-sudo -u oneadmin env HOME=/var/lib/one \
-  onevm terminate restricted-api-test \
+sudo -u oneadmin onevm terminate restricted-api-test \
   --hard \
   --user restrictedapi \
   --password StrongTempPass123!
 ```
 
-## 5. Configure the restricted control plane API
+## 5. Customize the VM and the template for your need
+
+### 5.1 Curate the VM template
+
+Starting from the imported VM template from the marketplace, customize for the needs of your environment. You can find an example in `curated-vm-template-example.txt`.
+
+### 5.2 Curate the VM disk/image
+
+Access a test VM deployment as `root` from your OpenClaw VM (or anywhere else...), and run these setup steps:
+
+```bash
+adduser claw
+# specify any password, and any user details in the responses
+usermod -aG sudo claw
+chsh -s /bin/bash claw
+```
+
+Test the new user, and then add some `sudo` policies:
+
+```bash
+sudo visudo
+```
+
+Add at the end of the file:
+```bash
+Defaults:claw !requiretty
+
+claw ALL=(ALL) NOPASSWD: ALL
+Cmnd_Alias CLAW_APT = /usr/bin/apt-get update, /usr/bin/apt-get install -y *
+Cmnd_Alias CLAW_LINK = /usr/bin/ln, /usr/bin/install, /usr/bin/mkdir
+
+claw ALL=(root) NOPASSWD: CLAW_APT, CLAW_LINK
+```
+
+And then `sudo visudo -c` should pass.
+
+### 5.3 Save the disk 
+
+After you are happy with the state of the OS, save its disk/image. E.g. from OpenNebula UI: Find the running VM, go to Storage tab, select the OS disk, Save-As. Then finally update the VM template to point to the cloned disk, i.e. replace the `<<CURATED OS IMAGE ID>>` in the above referenced example.
+
+## 6. Configure the restricted control plane API
 
 Example `opennebula-restricted-control-plane/config.json`:
 
@@ -147,7 +171,18 @@ Behavior in the current prototype:
 - if `user` is `oneadmin`, the API omits `--user`
 - otherwise, the API adds `--user` and `--password`
 
-## 6. Test the API
+Place add the following sudoers rule file to `/etc/sudoers.d/nebula-claw-developer-api` after replacing "claw" with your user that will be executing the API:
+
+```bash
+$ sudo cat /etc/sudoers.d/nebula-claw-developer-api
+claw ALL=(oneadmin) NOPASSWD: /usr/bin/onevm, /usr/bin/onetemplate, /usr/bin/oneuser, /usr/bin/onehost, /usr/bin/onecluster, /usr/bin/onedatastore, /usr/bin/onevnet
+Defaults:claw !requiretty
+
+$ sudo chmod 0440 /etc/sudoers.d/nebula-claw-developer-api
+$ sudo visudo -c
+```
+
+## 7. Test the API
 
 List VMs:
 
@@ -160,7 +195,7 @@ Create a VM:
 ```bash
 curl -X POST http://127.0.0.1:8080/vms \
   -H "Content-Type: application/json" \
-  -d '{"template_name":"alpine320-test","name":"restricted-api-test"}'
+  -d '{"template_name":"ubuntu-24-curated","name":"restricted-api-test"}'
 ```
 
 Delete the VM:
@@ -169,7 +204,7 @@ Delete the VM:
 curl -X DELETE http://127.0.0.1:8080/vms/restricted-api-test
 ```
 
-## 7. Connect the published skill to the API
+## 8. Connect the published skill to the API
 
 The publishable skill lives in the repository `nebula-claw-developer/` folder.
 
