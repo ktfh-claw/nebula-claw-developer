@@ -45,12 +45,12 @@ DELETE /vms/test-nebula-api-2026-04-10
 
 ## Expected environment inputs
 
-The skill expects an API base URL to be available to the helper script, typically through the `API_BASE` environment variable.
+The skill expects an API base URL to be available to the helper script, typically through the `NEBULA_CLAW_DEVELOPER_API_BASE` environment variable.
 
 Example:
 
 ```bash
-API_BASE=http://10.1.1.130:8080 ./scripts/vm_api.sh health
+NEBULA_CLAW_DEVELOPER_API_BASE=http://10.1.1.130:8080 ./scripts/vm_api.sh health
 ```
 
 Do not hardcode one deployment-specific endpoint into the published skill unless the installation explicitly targets one environment.
@@ -66,19 +66,19 @@ Do not hardcode one deployment-specific endpoint into the published skill unless
 Health:
 
 ```bash
-curl "$API_BASE/health"
+curl "$NEBULA_CLAW_DEVELOPER_API_BASE/health"
 ```
 
 List:
 
 ```bash
-curl "$API_BASE/vms"
+curl "$NEBULA_CLAW_DEVELOPER_API_BASE/vms"
 ```
 
 Create:
 
 ```bash
-curl -X POST "$API_BASE/vms" \
+curl -X POST "$NEBULA_CLAW_DEVELOPER_API_BASE/vms" \
   -H "Content-Type: application/json" \
   -d '{"template_name":"alpine320-test","name":"test-nebula-api-2026-04-10"}'
 ```
@@ -86,7 +86,7 @@ curl -X POST "$API_BASE/vms" \
 Delete:
 
 ```bash
-curl -X DELETE "$API_BASE/vms/test-nebula-api-2026-04-10"
+curl -X DELETE "$NEBULA_CLAW_DEVELOPER_API_BASE/vms/test-nebula-api-2026-04-10"
 ```
 
 ## Notes

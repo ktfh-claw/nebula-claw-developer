@@ -1,6 +1,8 @@
 # Local env / secrets
+venv/
 .env
 *.env
+config.json
 
 # OS/editor
 .DS_Store

@@ -155,7 +155,7 @@ After you are happy with the state of the OS, save its disk/image. E.g. from Ope
 
 ## 6. Configure the restricted control plane API
 
-Example `opennebula-restricted-control-plane/config.json`:
+Copy the `opennebula-restricted-control-plane/config.json.template` to `opennebula-restricted-control-plane/config.json` and update the user/password of the OpenNebula user:
 
 ```json
 {
