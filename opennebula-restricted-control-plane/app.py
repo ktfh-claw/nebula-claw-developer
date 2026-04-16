@@ -136,7 +136,7 @@ def create_vm():
         raise ApiError("missing json field: name")
 
     one_user, one_password = resolve_one_credentials(payload)
-    base_command = f"/usr/bin/onetemplate instantiate {shlex.quote(str(template_name))} --name {shlex.quote(str(name))} --hold"
+    base_command = f"/usr/bin/onetemplate instantiate {shlex.quote(str(template_name))} --name {shlex.quote(str(name))} "
     command = build_shell_command(base_command, one_user, one_password)
     result = run_shell(command)
 
