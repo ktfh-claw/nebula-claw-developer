@@ -12,7 +12,7 @@ from flask import Flask, jsonify, request
 
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_CONFIG_PATH = BASE_DIR / "config.json"
-CONFIG_PATH = Path(os.environ.get("RESTRICTED_API_CONFIG", DEFAULT_CONFIG_PATH))
+CONFIG_PATH = Path(os.environ.get("NEBULA_CLAW_DEVELOPER_RESTRICTED_API_CONFIG", DEFAULT_CONFIG_PATH))
 
 app = Flask(__name__)
 
@@ -174,6 +174,6 @@ def delete_vm(vm_id: str):
 
 
 if __name__ == "__main__":
-    host = os.environ.get("RESTRICTED_API_HOST", "127.0.0.1")
-    port = int(os.environ.get("RESTRICTED_API_PORT", "8080"))
+    host = os.environ.get("NEBULA_CLAW_DEVELOPER_RESTRICTED_API_HOST", "127.0.0.1")
+    port = int(os.environ.get("NEBULA_CLAW_DEVELOPER_RESTRICTED_API_PORT", "8080"))
     app.run(host=host, port=port)

@@ -86,9 +86,9 @@ python3 app.py
 
 Environment variables:
 
-- `RESTRICTED_API_CONFIG` — optional path to an alternate config file
-- `RESTRICTED_API_HOST` — bind host, default `127.0.0.1`
-- `RESTRICTED_API_PORT` — bind port, default `8080`
+- `NEBULA_CLAW_DEVELOPER_API_CONFIG` — optional path to an alternate config file
+- `NEBULA_CLAW_DEVELOPER_RESTRICTED_API_HOST` — bind host, default `127.0.0.1`
+- `NEBULA_CLAW_DEVELOPER_RESTRICTED_API_PORT` — bind port, default `8080`
 
 ## Notes
 
