@@ -12,9 +12,9 @@ Use the restricted OpenNebula control plane API to create, list, and terminate d
 1. Read `references/api.md` for the API contract and request examples.
 2. Check API health before taking action.
 3. List visible VMs and reuse an existing one only if it clearly matches the task.
-4. Prefer curated template names over numeric identifiers.
+4. Prefer curated template names over numeric identifiers and use the configured template catalog descriptions to choose the right one.
 5. Create a fresh VM when isolation matters more than reuse.
-6. Record the VM name in output so later cleanup is obvious.
+6. Record the VM name and guest IP in output when available so later access and cleanup are obvious.
 7. Terminate the VM when the task is complete unless the user explicitly asks to keep it.
 
 ## Safety constraints
@@ -52,5 +52,6 @@ When using this skill, report:
 - the API endpoint used
 - the VM name
 - the template name
+- the guest IP when the API exposes it
 - the result of create, list, or delete operations
 - whether the VM was left running or destroyed

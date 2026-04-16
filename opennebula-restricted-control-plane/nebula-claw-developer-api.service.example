@@ -1,0 +1,24 @@
+[Unit]
+Description=Nebula Claw Developer restricted OpenNebula API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=claw
+Group=claw
+WorkingDirectory=/opt/nebula-claw-developer/opennebula-restricted-control-plane
+Environment=NEBULA_CLAW_DEVELOPER_RESTRICTED_API_CONFIG=/etc/nebula-claw-developer/config.json
+Environment=NEBULA_CLAW_DEVELOPER_RESTRICTED_API_HOST=127.0.0.1
+Environment=NEBULA_CLAW_DEVELOPER_RESTRICTED_API_PORT=8080
+ExecStart=/opt/nebula-claw-developer/opennebula-restricted-control-plane/.venv/bin/python /opt/nebula-claw-developer/opennebula-restricted-control-plane/app.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/etc/nebula-claw-developer
+
+[Install]
+WantedBy=multi-user.target

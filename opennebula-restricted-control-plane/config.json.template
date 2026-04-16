@@ -2,5 +2,11 @@
   "opennebula": {
     "user": "restrictedapi",
     "password": "StrongTempPass123!"
-  }
+  },
+  "templates": [
+    {
+      "name": "curated-ubuntu-24-04-for-nebula-claw-developer",
+      "description": "Ubuntu 24.04 curated development VM for disposable OpenClaw and infrastructure experiments."
+    }
+  ]
 }

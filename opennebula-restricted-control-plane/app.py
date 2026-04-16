@@ -7,6 +7,7 @@ import shlex
 import subprocess
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 from flask import Flask, jsonify, request
 
@@ -23,6 +24,17 @@ def load_config() -> dict[str, Any]:
 
 
 CONFIG = load_config()
+
+
+def visible_templates() -> list[dict[str, str]]:
+    items = config_value("templates", []) or []
+    out: list[dict[str, str]] = []
+    for item in items:
+        name = str(item.get("name", "")).strip()
+        description = str(item.get("description", "")).strip()
+        if name:
+            out.append({"name": name, "description": description})
+    return out
 
 
 class ApiError(Exception):
@@ -89,7 +101,11 @@ def resolve_one_credentials(payload: dict[str, Any] | None = None) -> tuple[str,
 
 @app.get("/health")
 def health():
-    return jsonify({"status": "ok", "config": str(CONFIG_PATH)})
+    return jsonify({
+        "status": "ok",
+        "config": str(CONFIG_PATH),
+        "templates": visible_templates(),
+    })
 
 
 @app.get("/vms")
@@ -108,20 +124,46 @@ def list_vms():
             reader = csv.DictReader(io.StringIO(output), skipinitialspace=True)
             parsed = []
             for row in reader:
+                vm_id = (row.get("ID") or "").strip()
+                vm_name = (row.get("NAME") or "").strip()
+                ip = None
+                if vm_id:
+                    show_cmd = build_shell_command(
+                        f"/usr/bin/onevm show {shlex.quote(vm_id)} --json",
+                        one_user,
+                        one_password,
+                    )
+                    try:
+                        show_result = run_shell(show_cmd)
+                        vm_json = json.loads(show_result.stdout)
+                        nics = vm_json.get("VM", {}).get("TEMPLATE", {}).get("NIC", [])
+                        if isinstance(nics, dict):
+                            nics = [nics]
+                        ips = [str(nic.get("IP", "")).strip() for nic in nics if str(nic.get("IP", "")).strip()]
+                        if ips:
+                            ip = ips[0]
+                    except Exception:
+                        ip = None
                 parsed.append(
                     {
-                        "id": row.get("ID"),
+                        "id": vm_id,
                         "user": row.get("USER"),
-                        "name": row.get("NAME"),
+                        "name": vm_name,
                         "state": row.get("STAT"),
                         "cpu": row.get("CPU"),
                         "memory": row.get("MEM"),
                         "host": row.get("HOST"),
                         "time": row.get("TIME"),
+                        "ip": ip,
                     }
                 )
 
-    return jsonify({"items": parsed, "command": command, "opennebula_user": one_user})
+    return jsonify({
+        "items": parsed,
+        "command": command,
+        "opennebula_user": one_user,
+        "templates": visible_templates(),
+    })
 
 
 @app.post("/vms")
@@ -134,6 +176,13 @@ def create_vm():
         raise ApiError("missing json field: template_name")
     if not name:
         raise ApiError("missing json field: name")
+
+    allowed_templates = [item["name"] for item in visible_templates()]
+    if allowed_templates and str(template_name) not in allowed_templates:
+        raise ApiError(
+            f"template_name not allowed: {template_name}. allowed templates: {', '.join(allowed_templates)}",
+            403,
+        )
 
     one_user, one_password = resolve_one_credentials(payload)
     base_command = f"/usr/bin/onetemplate instantiate {shlex.quote(str(template_name))} --name {shlex.quote(str(name))} "
@@ -150,6 +199,11 @@ def create_vm():
             "command": command,
         }
     ), 201
+
+
+@app.get("/templates")
+def list_templates():
+    return jsonify({"items": visible_templates()})
 
 
 @app.delete("/vms/<vm_id>")

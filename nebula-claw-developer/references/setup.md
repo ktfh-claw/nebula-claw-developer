@@ -7,8 +7,8 @@ Use a dedicated non-admin OpenNebula user for restricted control plane actions, 
 ## Example values
 
 - OpenNebula user: `restrictedapi`
-- Curated image: `alpine320-test`
-- Curated template: `alpine320-test`
+- Curated image: `curated-ubuntu-24-04-for-nebula-claw-developer`
+- Curated template: `curated-ubuntu-24-04-for-nebula-claw-developer`
 - Curated network: `vm`
 
 ## Create the restricted user
@@ -18,11 +18,11 @@ sudo -u oneadmin env HOME=/var/lib/one \
   oneuser create restrictedapi StrongTempPass123!
 ```
 
-## Import a curated Alpine image from the marketplace
+## Import a curated Ubuntu 24.04 image from the marketplace
 
 ```bash
 sudo -u oneadmin env HOME=/var/lib/one \
-  onemarketapp export "Alpine Linux 3.20" alpine320-test --datastore default
+  onemarketapp export "Ubuntu 24.04" curated-ubuntu-24-04-for-nebula-claw-developer --datastore default
 ```
 
 ## Share curated resources with the non-admin group
@@ -31,18 +31,18 @@ Template:
 
 ```bash
 sudo -u oneadmin env HOME=/var/lib/one \
-  onetemplate chgrp alpine320-test users
+  onetemplate chgrp curated-ubuntu-24-04-for-nebula-claw-developer users
 sudo -u oneadmin env HOME=/var/lib/one \
-  onetemplate chmod alpine320-test 640
+  onetemplate chmod curated-ubuntu-24-04-for-nebula-claw-developer 640
 ```
 
 Image:
 
 ```bash
 sudo -u oneadmin env HOME=/var/lib/one \
-  oneimage chgrp alpine320-test users
+  oneimage chgrp curated-ubuntu-24-04-for-nebula-claw-developer users
 sudo -u oneadmin env HOME=/var/lib/one \
-  oneimage chmod alpine320-test 640
+  oneimage chmod curated-ubuntu-24-04-for-nebula-claw-developer 640
 ```
 
 Network:
@@ -67,9 +67,8 @@ Create:
 
 ```bash
 sudo -u oneadmin env HOME=/var/lib/one \
-  onetemplate instantiate alpine320-test \
+  onetemplate instantiate curated-ubuntu-24-04-for-nebula-claw-developer \
   --name restricted-api-test \
-  --hold \
   --user restrictedapi \
   --password StrongTempPass123!
 ```
@@ -91,7 +90,13 @@ sudo -u oneadmin env HOME=/var/lib/one \
   "opennebula": {
     "user": "restrictedapi",
     "password": "change-me"
-  }
+  },
+  "templates": [
+    {
+      "name": "curated-ubuntu-24-04-for-nebula-claw-developer",
+      "description": "Ubuntu 24.04 curated development VM for disposable OpenClaw and infrastructure experiments."
+    }
+  ]
 }
 ```
 
@@ -99,6 +104,7 @@ sudo -u oneadmin env HOME=/var/lib/one \
 
 - Move the password out of JSON config.
 - Add API authentication.
-- Allowlist template names.
+- Keep the curated `templates` allowlist small and documented with descriptions.
 - Add TTL-based cleanup for disposable VMs.
 - Restrict bind address and network exposure according to the deployment.
+- Ensure the service account has passwordless sudo for the exact `one*` binaries used by the API, otherwise systemd runs can hang on sudo prompts.

@@ -19,7 +19,7 @@ Request body:
 
 ```json
 {
-  "template_name": "alpine320-test",
+  "template_name": "curated-ubuntu-24-04-for-nebula-claw-developer",
   "name": "test-nebula-api-2026-04-10"
 }
 ```
@@ -28,7 +28,7 @@ Optional OpenNebula credential override for testing:
 
 ```json
 {
-  "template_name": "alpine320-test",
+  "template_name": "curated-ubuntu-24-04-for-nebula-claw-developer",
   "name": "test-nebula-api-2026-04-10",
   "one_user": "restrictedapi",
   "one_password": "change-me"
@@ -58,8 +58,10 @@ Do not hardcode one deployment-specific endpoint into the published skill unless
 ## Current example environment
 
 - restricted API user: `restrictedapi`
-- curated template: `alpine320-test`
+- curated template: `curated-ubuntu-24-04-for-nebula-claw-developer`
 - example network: `vm`
+
+The API can also expose a configured curated template catalog via `GET /templates` and in the `templates` field of `GET /health` and `GET /vms`.
 
 ## Curl examples
 
@@ -80,7 +82,7 @@ Create:
 ```bash
 curl -X POST "$NEBULA_CLAW_DEVELOPER_API_BASE/vms" \
   -H "Content-Type: application/json" \
-  -d '{"template_name":"alpine320-test","name":"test-nebula-api-2026-04-10"}'
+  -d '{"template_name":"curated-ubuntu-24-04-for-nebula-claw-developer","name":"test-nebula-api-2026-04-10"}'
 ```
 
 Delete:
@@ -93,4 +95,6 @@ curl -X DELETE "$NEBULA_CLAW_DEVELOPER_API_BASE/vms/test-nebula-api-2026-04-10"
 
 - If the configured OpenNebula user is `oneadmin`, the API omits `--user`.
 - If the configured OpenNebula user is not `oneadmin`, the API adds `--user` and `--password`.
+- `GET /vms` should include guest IP when OpenNebula reports it via VM NIC data.
+- The config should contain a curated `templates` list, each with `name` and `description`, and `POST /vms` should only allow those templates when the list is configured.
 - The current delete path maps to a hard terminate action in OpenNebula.
