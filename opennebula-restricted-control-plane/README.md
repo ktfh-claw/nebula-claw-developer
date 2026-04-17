@@ -115,8 +115,8 @@ Suggested install flow:
 sudo mkdir -p /opt/nebula-claw-developer
 sudo cp -a opennebula-restricted-control-plane /opt/nebula-claw-developer/
 cd /opt/nebula-claw-developer/opennebula-restricted-control-plane
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 sudo mkdir -p /etc/nebula-claw-developer
 sudo cp config.json.template /etc/nebula-claw-developer/config.json

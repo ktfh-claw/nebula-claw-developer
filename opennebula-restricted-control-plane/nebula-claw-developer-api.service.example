@@ -5,13 +5,13 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=claw
-Group=claw
+User=oneadmin
+Group=oneadmin
 WorkingDirectory=/opt/nebula-claw-developer/opennebula-restricted-control-plane
 Environment=NEBULA_CLAW_DEVELOPER_RESTRICTED_API_CONFIG=/etc/nebula-claw-developer/config.json
-Environment=NEBULA_CLAW_DEVELOPER_RESTRICTED_API_HOST=127.0.0.1
+Environment=NEBULA_CLAW_DEVELOPER_RESTRICTED_API_HOST=0.0.0.0
 Environment=NEBULA_CLAW_DEVELOPER_RESTRICTED_API_PORT=8080
-ExecStart=/opt/nebula-claw-developer/opennebula-restricted-control-plane/.venv/bin/python /opt/nebula-claw-developer/opennebula-restricted-control-plane/app.py
+ExecStart=/opt/nebula-claw-developer/opennebula-restricted-control-plane/venv/bin/python /opt/nebula-claw-developer/opennebula-restricted-control-plane/app.py
 Restart=on-failure
 RestartSec=5
 NoNewPrivileges=true

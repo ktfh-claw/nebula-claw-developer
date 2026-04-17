@@ -73,7 +73,7 @@ def config_value(name: str, default: Any = None) -> Any:
 
 
 def build_shell_command(base_command: str, one_user: str, one_password: str | None = None) -> str:
-    cmd = f"sudo -u oneadmin env HOME=/var/lib/one {base_command}"
+    cmd = f"{base_command}"
     if one_user != "oneadmin":
         if not one_password:
             raise ApiError("password required when OpenNebula user is not oneadmin")
