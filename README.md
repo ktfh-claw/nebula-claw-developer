@@ -86,12 +86,7 @@ From the repository root, publish the skill folder with the ClawHub CLI:
 ```bash
 clawhub login
 clawhub whoami
-clawhub skill publish ./nebula-claw-developer \
-  --slug nebula-claw-developer \
-  --name "Nebula Claw Developer" \
-  --version 1.0.0 \
-  --changelog "Initial public release" \
-  --tags latest
+clawhub publish  --slug nebula-claw-developer   --name "Nebula Claw Developer"   --version 1.0.0   --changelog "Initial public release"   --tags latest $FULL_PATH_TO_PROJECT_ROOT/nebula-claw-developer/nebula-claw-developer/
 ```
 
 ## Local test workflow
