@@ -26,15 +26,6 @@ This folder holds setup notes for a reference OpenNebula + OpenClaw environment.
 - Validate bridge/NAT/networking assumptions for the target environment.
 - Confirm datastore mode (`ds.mode`) and virtual network details before deployment.
 
-## TODOs
-
-- [ ] Write concrete `one-deploy` steps for this environment
-- [ ] Document NAT configuration requirements and examples
-- [x] Document post-install OpenNebula user / group / ACL configuration
-- [x] Define the curated VM templates OpenClaw is allowed to manage
-- [ ] Add a hardening checklist for the OpenClaw VM
-- [ ] Add backup / snapshot recommendations
-
 ## Restricted control plane setup
 
 See `restricted-user-setup.md` for a concrete example of:
@@ -70,3 +61,7 @@ Suggested follow-up documentation to add later:
 - systemd/gateway setup notes
 - secret handling pattern for service-managed environments
 - node pairing / remote access model
+
+## VM Snapshots
+
+As OpenClaw VM will change a lot, at certain points it makes sense to create a snapshot of it using OpenNebula.

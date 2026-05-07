@@ -1,0 +1,13 @@
+[Unit]
+Description=Autostart OpenClaw OpenNebula VM after host reboot
+After=opennebula.service opennebula-hem.service
+Wants=opennebula.service opennebula-hem.service
+
+[Service]
+Type=oneshot
+User=oneadmin
+ExecStart=/usr/local/sbin/openclaw-vm-autostart.sh
+TimeoutStartSec=15min
+
+[Install]
+WantedBy=multi-user.target
